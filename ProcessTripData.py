@@ -1,6 +1,3 @@
-#gc trip_data_2.csv | select -first;  10
-#head trip_data_2.csv
-
 import csv, sys, time, datetime
 from collections import defaultdict
 
