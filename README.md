@@ -10,6 +10,8 @@
 
 ## Question-1: DateTime Range & Total Records in Data
 
+##### There were 2 datetime fields in given data. One is pickup timestamp and other one is dropoff timestamp. First, I found the minimum and maximum timestamp value for each field separately. Then, I took the difference between maximum dropoff timestamp and minimum pickup timestamp to get the total number of days in between these two timestamps. The result are as follows,
+
 * **Pickup Start time:**  2013-02-01 00:00:00
 * **Pickup End time:**   2013-02-28 23:59:59
 * **Dropoff Start time:**  2013-02-01 00:00:55
@@ -20,12 +22,12 @@
 * **Microseconds:** 0
 * **Seconds:** 4548
 
-#### Total Number of Records in Given Data:  13990176
+#### Total Number of Records in Given Data:  **_13990176_**
 
 #### Datetime Range Covered in Data:
-From:  2013-02-01 00:00:00 
-To:  2013-03-01 01:15:48 
-And The Difference in Datetime is:  28 days, 1:15:48
+**_From:  2013-02-01 00:00:00_**
+**_To:  2013-03-01 01:15:48_**
+And The Difference in Datetime is: **_28 days, 1:15:48_**
 
 
 ## Question-2: Fieldnames & their Descriptions
@@ -78,22 +80,59 @@ And The Difference in Datetime is:  28 days, 1:15:48
 
 ## Question-5: Geographic Range of the Data
 
-* **Maximum Pickup Latitude:**  96.685364
-* **Minimum Pickup Latitude:**  -0.000042
-* **Maximum Pickup Longitude:**  9.0799999E-4
-* **Minimum Pickup Longitude:**  -0.000002
+##### For calculating the minimum and maximum latitude and longitude geographic range, I used list to get the min and max data points. To remove the outliers in data, I sorted the list in ascending order and took the minimum value at the index position **_'10000'_** from left and maximum value at the index position **_'10000'_** from right. This helped to get the range of values for pickup and dropoff latitude and longitude. The sample code is as follows,
 
-* **Maximum Dropoff Latitude:**  9.8999997E-4
-* **Minimum Dropoff Latitude:**  -0.000008
-* **Maximum Dropoff Longitude:**  9.6999996E-5
-* **Minimum Dropoff Longitude:**  -0.000163
+    pickupLatitudeLen = len(all_pickupLatitude)
+    if (all_pickupLatitude[pickupLatitudeLen-1] == ' ' or all_pickupLatitude[pickupLatitudeLen-1] == '' or all_pickupLatitude[pickupLatitudeLen-1] == 0):
+        print("Maximum Pickup Latitude: ", all_pickupLatitude[pickupLatitudeLen-10000])
+    else:
+        print("Maximum Pickup Latitude: ", all_pickupLatitude[pickupLatitudeLen-10000])
+
+    if (all_pickupLatitude[0] == ' ' or all_pickupLatitude[0] == '' or all_pickupLatitude[0] == 0):
+        print("Minimum Pickup Latitude: ", all_pickupLatitude[10000])
+    else:
+        print("Minimum Pickup Latitude: ", all_pickupLatitude[10000])
+
+    pickupLongitudeLen = len(all_pickupLongitude)
+    if (all_pickupLongitude[pickupLongitudeLen-1] == ' ' or all_pickupLongitude[pickupLongitudeLen-1] == '' or all_pickupLongitude[pickupLongitudeLen-1] == 0):
+        print("Maximum Pickup Longitude: ", all_pickupLongitude[pickupLongitudeLen-10000])
+    else:
+        print("Maximum Pickup Longitude: ", all_pickupLongitude[pickupLongitudeLen-10000])
+
+    if (all_pickupLongitude[0] == ' ' or all_pickupLongitude[0] == '' or all_pickupLongitude[0] == 0):
+        print("Minimum Pickup Longitude: ", all_pickupLongitude[10000])
+    else:
+        print("Minimum Pickup Longitude: ", all_pickupLongitude[10000])
+
+* **Maximum Pickup Latitude:**  40.82988
+* **Minimum Pickup Latitude:**  40.660435
+* **Maximum Pickup Longitude:**  -73.995476
+* **Minimum Pickup Longitude:**  -73.833504
+
+* **Maximum Dropoff Latitude:**  40.877312
+* **Minimum Dropoff Latitude:**  40.614243
+* **Maximum Dropoff Longitude:**  -74.038765
+* **Minimum Dropoff Longitude:**  -73.759254
+
+##### The below screenshot shows the geographic range of NYC trip dataset.
+
+![GitHub Logo](/images/GeographicRange.png)
 
 ## Question-6: Distinct Values of the Field
+
+##### From the given data, I found the distinct value for 2 fields which has discrete values. Rest all field values are continuous and didn't have distinct values to extract. The sample code for finding distinct values are as follows,
+
+    if row[2] not in distVendorid:
+        distVendorid.append(row[2])
+    if row[4] not in distStoreFwdFlag:
+        distStoreFwdFlag.append(row[4])
 
 * **Distinct Vendor Id:**  ['CMT', 'VTS']
 * **Distinct Store And Forward Flag:**  ['N', 'Y', '']
 
 ## Question-7: Min & Max Values of Numeric Fields
+
+###### Besides Latitude & Longitude fields, the data contains few other numeric datatype fields which are listed below and the minimum and maximum values of those fields are as follows.
 
 * **Maximum Passenger Count:**  9
 * **Minimum Passenger Count:**  0
@@ -106,19 +145,55 @@ And The Difference in Datetime is:  28 days, 1:15:48
 
 ## Question-8: Chart to Show the Average Number of Passengers Each Hour of the Day.
 
+To get the average number of passengers each hour of the day, I used dictionary to store hour as key and number of passenger count as value. The sample code is as follows,
+
+    timeList = (row[5].split(" ")[-1].split(":"))
+    hourTimeDict[int(timeList[0])].append(int(row[7]))
+
+Then I stored the average computation result in separate CSV file which contains hour and average passenger count as follows,
+
+    with open('generatedFiles/AvgPassengerCount.csv', 'a') as avgFile:
+        writer = csv.writer(avgFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        writer.writerow(["Hours","AvgPassengerCount"])
+        for key, value in sorted(hourTimeDict.items()):
+            average = sum(value)/(dateTimeDiff.days)
+            writer.writerow([key,average])
+
 ### Average Number of Passengers Vs Hour for All Records in Given Data
+
+##### The graph shows that the average passenger count is increasing with respect to hours. And tha maximum point is reached between 6PM to 8PM. Whereas the minimum passenger count with respect to hour is seen at 5AM after which there is an increase in average count across hours.
 
 ![GitHub Logo](/images/AvgPassengerCount.png)
 
 ## Question-9: New CSV File Which Has Only One Out of Every Thousand Rows.
 
+##### The new CSV file has been generated to store the every thousand row from the given data. And the **_"EveryThousandRows.csv"_** file is included inside the "generatedFiles" folder during execution. The code for the same is as follows,
+
+    with open('generatedFiles/EveryThousandRows.csv', 'a') as comFile:
+        writer = csv.writer(comFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        if n % 100000 == 0:
+            #write to csv file
+            writer.writerow([row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13]])
 
 ## Question-10: Compare Charts From Normal Dataset and Reduced Row From Q-9 Dataset.
+
+##### The new CSV file has been generated from the reduced rows dataset to store the hour and average number of passenger details . And the **_"RRAvgPassengerCount.csv"_** file is included inside the "generatedFiles" folder during execution. The code for the same is as follows,
+
+    with open('generatedFiles/RRAvgPassengerCount.csv', 'a') as avgFile:
+        writer = csv.writer(avgFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        writer.writerow(["RRHours","RRAvgPassengerCount"])
+        for key, value in sorted(rrHourTimeDict.items()):
+            rrAverage = sum(value)/(dateTimeDiff.days)
+            writer.writerow([key,rrAverage])
+
+##### From the reduced rows dataset, the graph is generated between hours and average number of passengers. The graph clearly shows, that the average number passenger count fluctuates between hours. And this is not similar to normal dataset graph. The only common factor between these two graphs are the average number of passenger count attains the peak value at the hour 6PM.
 
 ### Average Number of Passengers for Reduced Row Vs Hour for All Records in Reduced Data
 
 ![GitHub Logo](/images/RRAvgPassengerCount.png)
 
 ## Console Output
+
+##### The below screenshot shows the console output during execution of NYC trip dataset.
 
 ![GitHub Logo](/images/Console_Output_SS.png)
